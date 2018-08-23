@@ -51,6 +51,10 @@ function isResponseCommand(command){
 		case "bigdickenergy":
 		case "bigtiddyenergy":
 		case "valid":
+		case "nerfed":
+		case "buffed":
+		case "fuck":
+		case "vegan":
 			return true;
 		default:
 			return false;
@@ -67,6 +71,8 @@ function getCommand(msgArgs){
 	//If the message is in the format: how x is target? then x is the command
 	} else if(isMessageInHowPhraseIsFormat(msgArgs)){
 		return msgArgs[2];
+	} else if(isMessageInDoesTargetFormat(msgArgs)){
+		return msgArgs[3];
 	}
 	
 	return '';
@@ -76,10 +82,10 @@ function getCommand(msgArgs){
 Gets the target for the response based on the message formatting
 */
 function getResponseTarget(msgArgs, user){
-	if(msgArgs.length == 3){
-		return msgArgs[2] == 'me' ? user : formatTarget(msgArgs[2]);
+	if(msgArgs.length == 3 || isMessageInDoesTargetFormat(msgArgs)){
+		return isTargetSender(msgArgs[2]) ? user : formatTarget(msgArgs[2]);
 	} else if(isMessageInHowPhraseIsFormat(msgArgs)){
-		return msgArgs[4] == 'i' || msgArgs[4] == 'I' ? user : formatTarget(msgArgs[4]);
+		return isTargetSender(msgArgs[4]) ? user : formatTarget(msgArgs[4]);
 	}
 	
 	return '';
@@ -89,7 +95,11 @@ function getResponseTarget(msgArgs, user){
 Returns true if the message is in the format: "jeff how x is y" or "jeff how x are you" or "jeff how x am i"
 */
 function isMessageInHowPhraseIsFormat(msgArgs){
-	return msgArgs.length == 5 && msgArgs[1] == 'how' && (msgArgs[3] == 'is' || msgArgs[3] == 'am' || msgArgs[3] == 'you');
+	return msgArgs.length == 5 && msgArgs[1] == 'how' && (msgArgs[3] == 'is' || msgArgs[3] == 'am' || msgArgs[3] == 'are');
+}
+
+function isMessageInDoesTargetFormat(msgArgs){
+	return msgArgs.length == 4 && (msgArgs[1] == 'does' || msgArgs[1] == 'do');
 }
 
 /*
@@ -115,6 +125,14 @@ switch(command){
 			return getHasPercentPhraseFormat(target, 'Big Tiddy Energy', 100);
 		case "valid":
 			return getIsPercentPhraseFormat(target, 'valid', 69);
+		case "nerfed":
+			return getIsPercentPhraseFormat(target, 'nerfed', 0);
+		case "buffed":
+			return getIsPercentPhraseFormat(target, 'buffed', 9000);
+		case "vegan":
+			return getIsPercentPhraseFormat(target, 'vegan', 100);
+		case "fuck":
+			return getDoesTargetPhraseFormat(target, 'fuck', 'Only your waifu');
 		default:
 			return '';
 	}
@@ -132,8 +150,8 @@ Returns a response string in the format: I have/Target has X% Phrase
 If the target is 'You', the random int will be overridden with the 'jeffInt' value
 */
 function getHasPercentPhraseFormat(target, phrase, jeffInt){
-	var percent = target == 'you' ? jeffInt : getRandomNumber(1,100);
-	var targetString = target == 'you' ? 'I have ' : target + ' has ';
+	var percent = isTargetJeff(target) ? jeffInt : getRandomNumber(1,100);
+	var targetString = isTargetJeff(target) ? 'I have ' : target + ' has ';
 	return targetString + percent + '% ' + phrase;
 }
 
@@ -142,7 +160,31 @@ Returns a response string in the format: I am/Target is X% Phrase
 If the target is 'You', the random int will be overridden with the 'jeffInt' value
 */
 function getIsPercentPhraseFormat(target, phrase, jeffInt){
-	var percent = target == 'you' ? jeffInt : getRandomNumber(1,100);
-	var targetString = target == 'you' ? 'I am ' : target + ' is ';
+	var percent = isTargetJeff(target) ? jeffInt : getRandomNumber(1,100);
+	var targetString = isTargetJeff(target) ? 'I am ' : target + ' is ';
 	return targetString + percent + '% ' + phrase;
+}
+
+/*
+Returns a response string that is either Target does phrase or Target does not phrase
+If the target is 'You', the response will be whatever jeffOverrideString is set to
+*/
+function getDoesTargetPhraseFormat(target, phrase, jeffOverrideString){
+	if(isTargetJeff(target)){
+		return jeffOverrideString;
+	}
+	
+	if(getRandomNumber(0,1) == 1){
+		return target + ' does ' + phrase;
+	}
+	
+	return target + ' does not ' + phrase;
+}
+
+function isTargetJeff(target){
+	return target == 'you' || target == 'You';
+}
+
+function isTargetSender(target){
+    return target == 'me' || target == 'i' || target == 'Me' || target == 'I';
 }
