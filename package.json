@@ -1,0 +1,11 @@
+{
+  "name": "JeffBot",
+  "version": "1.0.0",
+  "description": "It's Jeff from the Overwatch Team",
+  "main": "bot.js",
+  "author": "CatEnigma",
+  "dependencies": {
+    "discord.io": "github:woor/discord.io#gateway_v6",
+    "winston": "^3.0.0"
+  }
+}
